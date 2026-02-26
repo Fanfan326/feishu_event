@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %}错误 - 工单管理系统{% endblock %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 100px auto;">
+    <div class="card">
+        <h2 style="color: #ff4d4f; margin-bottom: 20px;">⚠️ 错误</h2>
+        <p style="font-size: 16px; margin-bottom: 20px;">{{ message }}</p>
+        <a href="{{ url_for('index') }}" class="btn btn-primary">返回首页</a>
+    </div>
+</div>
+{% endblock %}

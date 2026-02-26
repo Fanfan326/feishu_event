@@ -1,0 +1,1020 @@
+{
+  "__inputs": [
+    {
+      "name": "DS_INFINITY",
+      "label": "Infinity",
+      "description": "CMDB API 数据源",
+      "type": "datasource",
+      "pluginId": "yesoreyeram-infinity-datasource",
+      "pluginName": "Infinity"
+    }
+  ],
+  "__requires": [
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "9.0.0"
+    },
+    {
+      "type": "datasource",
+      "id": "yesoreyeram-infinity-datasource",
+      "name": "Infinity",
+      "version": "1.0.0"
+    }
+  ],
+  "annotations": {
+    "list": []
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 100,
+      "panels": [],
+      "title": "GPU 资源总览",
+      "type": "row"
+    },
+    {
+      "datasource": "${DS_INFINITY}",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 1 },
+      "id": 1,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "columns": [],
+          "filters": [],
+          "format": "table",
+          "global_query_id": "",
+          "refId": "A",
+          "root_selector": "",
+          "source": "url",
+          "type": "json",
+          "url": "${CMDB_API_URL}/gpu/summary",
+          "url_options": { "method": "GET" },
+          "comment": "请替换为实际 API 地址，返回格式: {\"total_machines\": 500}"
+        }
+      ],
+      "title": "机器总数",
+      "description": "GPU 服务器总数量",
+      "type": "stat"
+    },
+    {
+      "datasource": "${DS_INFINITY}",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "blue", "value": null }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 1 },
+      "id": 2,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "columns": [],
+          "filters": [],
+          "format": "table",
+          "refId": "A",
+          "source": "url",
+          "type": "json",
+          "url": "${CMDB_API_URL}/gpu/summary",
+          "url_options": { "method": "GET" },
+          "comment": "返回格式: {\"total_gpus\": 4000}"
+        }
+      ],
+      "title": "GPU 总数",
+      "description": "所有 GPU 卡总数量",
+      "type": "stat"
+    },
+    {
+      "datasource": "${DS_INFINITY}",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 70 },
+              { "color": "red", "value": 90 }
+            ]
+          },
+          "unit": "percent",
+          "min": 0,
+          "max": 100
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 1 },
+      "id": 3,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "columns": [],
+          "filters": [],
+          "format": "table",
+          "refId": "A",
+          "source": "url",
+          "type": "json",
+          "url": "${CMDB_API_URL}/gpu/summary",
+          "url_options": { "method": "GET" },
+          "comment": "返回格式: {\"allocation_rate\": 85.5}"
+        }
+      ],
+      "title": "分配率",
+      "description": "GPU 资源分配率（已分配/总数）",
+      "type": "stat"
+    },
+    {
+      "datasource": "${DS_INFINITY}",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "orange", "value": null }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 12, "y": 1 },
+      "id": 4,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "columns": [],
+          "filters": [],
+          "format": "table",
+          "refId": "A",
+          "source": "url",
+          "type": "json",
+          "url": "${CMDB_API_URL}/gpu/summary",
+          "url_options": { "method": "GET" },
+          "comment": "返回格式: {\"allocated_gpus\": 3400}"
+        }
+      ],
+      "title": "已分配",
+      "description": "已分配的 GPU 数量",
+      "type": "stat"
+    },
+    {
+      "datasource": "${DS_INFINITY}",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 16, "y": 1 },
+      "id": 5,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "columns": [],
+          "filters": [],
+          "format": "table",
+          "refId": "A",
+          "source": "url",
+          "type": "json",
+          "url": "${CMDB_API_URL}/gpu/summary",
+          "url_options": { "method": "GET" },
+          "comment": "返回格式: {\"available_gpus\": 600}"
+        }
+      ],
+      "title": "空闲可用",
+      "description": "空闲可分配的 GPU 数量",
+      "type": "stat"
+    },
+    {
+      "datasource": "${DS_INFINITY}",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 20, "y": 1 },
+      "id": 6,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "columns": [],
+          "filters": [],
+          "format": "table",
+          "refId": "A",
+          "source": "url",
+          "type": "json",
+          "url": "${CMDB_API_URL}/gpu/summary",
+          "url_options": { "method": "GET" },
+          "comment": "返回格式: {\"fault_gpus\": 12}"
+        }
+      ],
+      "title": "故障数",
+      "description": "故障或维护中的 GPU 数量",
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 5 },
+      "id": 101,
+      "panels": [],
+      "title": "资源分布分析",
+      "type": "row"
+    },
+    {
+      "datasource": "${DS_INFINITY}",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false }
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 6 },
+      "id": 7,
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": ["value", "percent"]
+        },
+        "pieType": "donut",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": true
+        },
+        "tooltip": { "mode": "single", "sort": "none" }
+      },
+      "targets": [
+        {
+          "columns": [],
+          "filters": [],
+          "format": "table",
+          "refId": "A",
+          "source": "url",
+          "type": "json",
+          "url": "${CMDB_API_URL}/gpu/by-department",
+          "url_options": { "method": "GET" },
+          "comment": "返回格式: [{\"department\": \"AI研发\", \"gpu_count\": 1200}, {\"department\": \"算法\", \"gpu_count\": 800}]"
+        }
+      ],
+      "title": "部门 GPU 分布",
+      "description": "各部门 GPU 资源占用情况",
+      "type": "piechart"
+    },
+    {
+      "datasource": "${DS_INFINITY}",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false }
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 6 },
+      "id": 8,
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": ["value", "percent"]
+        },
+        "pieType": "donut",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": true
+        },
+        "tooltip": { "mode": "single", "sort": "none" }
+      },
+      "targets": [
+        {
+          "columns": [],
+          "filters": [],
+          "format": "table",
+          "refId": "A",
+          "source": "url",
+          "type": "json",
+          "url": "${CMDB_API_URL}/gpu/by-model",
+          "url_options": { "method": "GET" },
+          "comment": "返回格式: [{\"model\": \"A100-80G\", \"count\": 1000}, {\"model\": \"A100-40G\", \"count\": 800}]"
+        }
+      ],
+      "title": "GPU 型号分布",
+      "description": "不同 GPU 型号的数量分布",
+      "type": "piechart"
+    },
+    {
+      "datasource": "${DS_INFINITY}",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false }
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 6 },
+      "id": 9,
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": ["value", "percent"]
+        },
+        "pieType": "donut",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": true
+        },
+        "tooltip": { "mode": "single", "sort": "none" }
+      },
+      "targets": [
+        {
+          "columns": [],
+          "filters": [],
+          "format": "table",
+          "refId": "A",
+          "source": "url",
+          "type": "json",
+          "url": "${CMDB_API_URL}/gpu/by-status",
+          "url_options": { "method": "GET" },
+          "comment": "返回格式: [{\"status\": \"运行中\", \"count\": 3000}, {\"status\": \"空闲\", \"count\": 600}]"
+        }
+      ],
+      "title": "GPU 状态分布",
+      "description": "GPU 资源的状态分布（运行/空闲/故障/维护）",
+      "type": "piechart"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 14 },
+      "id": 102,
+      "panels": [],
+      "title": "部门资源使用排行",
+      "type": "row"
+    },
+    {
+      "datasource": "${DS_INFINITY}",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "GPU 数量",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "lineWidth": 1,
+            "scaleDistribution": { "type": "linear" },
+            "thresholdsStyle": { "mode": "off" }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [{ "color": "green", "value": null }]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 15 },
+      "id": 10,
+      "options": {
+        "barRadius": 0.05,
+        "barWidth": 0.6,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": { "calcs": [], "displayMode": "list", "placement": "bottom", "showLegend": true },
+        "orientation": "horizontal",
+        "showValue": "always",
+        "stacking": "none",
+        "tooltip": { "mode": "single", "sort": "none" },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "targets": [
+        {
+          "columns": [],
+          "filters": [],
+          "format": "table",
+          "refId": "A",
+          "source": "url",
+          "type": "json",
+          "url": "${CMDB_API_URL}/gpu/department-ranking",
+          "url_options": { "method": "GET" },
+          "comment": "返回格式: [{\"department\": \"AI研发\", \"allocated\": 1200, \"total\": 1500}]"
+        }
+      ],
+      "title": "部门 GPU 使用排行 (Top 10)",
+      "description": "各部门 GPU 分配数量排行",
+      "type": "barchart"
+    },
+    {
+      "datasource": "${DS_INFINITY}",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "custom": {
+            "align": "auto",
+            "cellOptions": { "type": "auto" },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 70 },
+              { "color": "red", "value": 90 }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "utilization" },
+            "properties": [
+              { "id": "unit", "value": "percent" },
+              { "id": "custom.cellOptions", "value": { "mode": "gradient", "type": "gauge" } }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "gpu_count" },
+            "properties": [
+              { "id": "displayName", "value": "GPU数量" }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "department" },
+            "properties": [
+              { "id": "displayName", "value": "部门" }
+            ]
+          }
+        ]
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 15 },
+      "id": 11,
+      "options": {
+        "cellHeight": "sm",
+        "footer": { "countRows": false, "fields": "", "reducer": ["sum"], "show": false },
+        "showHeader": true,
+        "sortBy": [{ "desc": true, "displayName": "GPU数量" }]
+      },
+      "targets": [
+        {
+          "columns": [],
+          "filters": [],
+          "format": "table",
+          "refId": "A",
+          "source": "url",
+          "type": "json",
+          "url": "${CMDB_API_URL}/gpu/department-details",
+          "url_options": { "method": "GET" },
+          "comment": "返回格式: [{\"department\": \"AI研发\", \"gpu_count\": 1200, \"utilization\": 85.5, \"owner\": \"张三\"}]"
+        }
+      ],
+      "title": "部门资源详情",
+      "description": "各部门 GPU 资源使用详情",
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 23 },
+      "id": 103,
+      "panels": [],
+      "title": "GPU 型号资源详情",
+      "type": "row"
+    },
+    {
+      "datasource": "${DS_INFINITY}",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "lineWidth": 1,
+            "scaleDistribution": { "type": "linear" },
+            "thresholdsStyle": { "mode": "off" }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [{ "color": "green", "value": null }]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 24 },
+      "id": 12,
+      "options": {
+        "barRadius": 0.05,
+        "barWidth": 0.6,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": { "calcs": [], "displayMode": "list", "placement": "bottom", "showLegend": true },
+        "orientation": "vertical",
+        "showValue": "always",
+        "stacking": "normal",
+        "tooltip": { "mode": "single", "sort": "none" },
+        "xTickLabelRotation": -45,
+        "xTickLabelSpacing": 0
+      },
+      "targets": [
+        {
+          "columns": [],
+          "filters": [],
+          "format": "table",
+          "refId": "A",
+          "source": "url",
+          "type": "json",
+          "url": "${CMDB_API_URL}/gpu/model-allocation",
+          "url_options": { "method": "GET" },
+          "comment": "返回格式: [{\"model\": \"A100-80G\", \"allocated\": 800, \"available\": 200}]"
+        }
+      ],
+      "title": "各型号 GPU 分配情况",
+      "description": "不同型号 GPU 的分配与空闲情况",
+      "type": "barchart"
+    },
+    {
+      "datasource": "${DS_INFINITY}",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "custom": {
+            "align": "auto",
+            "cellOptions": { "type": "auto" },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [{ "color": "green", "value": null }]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "allocation_rate" },
+            "properties": [
+              { "id": "unit", "value": "percent" },
+              { "id": "custom.cellOptions", "value": { "mode": "gradient", "type": "gauge" } },
+              { "id": "thresholds", "value": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 70 }, { "color": "red", "value": 90 }] } }
+            ]
+          }
+        ]
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 24 },
+      "id": 13,
+      "options": {
+        "cellHeight": "sm",
+        "footer": { "countRows": false, "fields": "", "reducer": ["sum"], "show": true },
+        "showHeader": true
+      },
+      "targets": [
+        {
+          "columns": [],
+          "filters": [],
+          "format": "table",
+          "refId": "A",
+          "source": "url",
+          "type": "json",
+          "url": "${CMDB_API_URL}/gpu/model-summary",
+          "url_options": { "method": "GET" },
+          "comment": "返回格式: [{\"model\": \"A100-80G\", \"total\": 1000, \"allocated\": 800, \"available\": 180, \"fault\": 20, \"allocation_rate\": 80}]"
+        }
+      ],
+      "title": "GPU 型号资源汇总",
+      "description": "各型号 GPU 资源汇总表",
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 32 },
+      "id": 104,
+      "panels": [],
+      "title": "机房/集群分布",
+      "type": "row"
+    },
+    {
+      "datasource": "${DS_INFINITY}",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false }
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 33 },
+      "id": 14,
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": ["value", "percent"]
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": true
+        },
+        "tooltip": { "mode": "single", "sort": "none" }
+      },
+      "targets": [
+        {
+          "columns": [],
+          "filters": [],
+          "format": "table",
+          "refId": "A",
+          "source": "url",
+          "type": "json",
+          "url": "${CMDB_API_URL}/gpu/by-datacenter",
+          "url_options": { "method": "GET" },
+          "comment": "返回格式: [{\"datacenter\": \"北京机房\", \"gpu_count\": 2000}]"
+        }
+      ],
+      "title": "机房 GPU 分布",
+      "description": "各机房 GPU 资源分布",
+      "type": "piechart"
+    },
+    {
+      "datasource": "${DS_INFINITY}",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "custom": {
+            "align": "auto",
+            "cellOptions": { "type": "auto" },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [{ "color": "green", "value": null }]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "allocation_rate" },
+            "properties": [
+              { "id": "unit", "value": "percent" },
+              { "id": "displayName", "value": "分配率" },
+              { "id": "custom.cellOptions", "value": { "mode": "gradient", "type": "gauge" } },
+              { "id": "thresholds", "value": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 70 }, { "color": "red", "value": 90 }] } }
+            ]
+          }
+        ]
+      },
+      "gridPos": { "h": 8, "w": 16, "x": 8, "y": 33 },
+      "id": 15,
+      "options": {
+        "cellHeight": "sm",
+        "footer": { "countRows": false, "fields": "", "reducer": ["sum"], "show": true },
+        "showHeader": true
+      },
+      "targets": [
+        {
+          "columns": [],
+          "filters": [],
+          "format": "table",
+          "refId": "A",
+          "source": "url",
+          "type": "json",
+          "url": "${CMDB_API_URL}/gpu/datacenter-summary",
+          "url_options": { "method": "GET" },
+          "comment": "返回格式: [{\"datacenter\": \"北京机房\", \"total_machines\": 200, \"total_gpus\": 2000, \"allocated\": 1700, \"available\": 280, \"fault\": 20, \"allocation_rate\": 85}]"
+        }
+      ],
+      "title": "机房资源汇总",
+      "description": "各机房 GPU 资源详情",
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 41 },
+      "id": 105,
+      "panels": [],
+      "title": "资源申请与趋势",
+      "type": "row"
+    },
+    {
+      "datasource": "${DS_INFINITY}",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": { "type": "linear" },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": { "group": "A", "mode": "none" },
+            "thresholdsStyle": { "mode": "off" }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [{ "color": "green", "value": null }]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 42 },
+      "id": 16,
+      "options": {
+        "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "multi", "sort": "none" }
+      },
+      "targets": [
+        {
+          "columns": [],
+          "filters": [],
+          "format": "table",
+          "refId": "A",
+          "source": "url",
+          "type": "json",
+          "url": "${CMDB_API_URL}/gpu/allocation-trend",
+          "url_options": { "method": "GET" },
+          "comment": "返回格式: [{\"date\": \"2024-01-01\", \"total\": 4000, \"allocated\": 3200, \"available\": 800}]"
+        }
+      ],
+      "title": "GPU 分配趋势 (近30天)",
+      "description": "GPU 资源分配趋势变化",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "${DS_INFINITY}",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "custom": {
+            "align": "auto",
+            "cellOptions": { "type": "auto" },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [{ "color": "green", "value": null }]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "status" },
+            "properties": [
+              { "id": "displayName", "value": "状态" },
+              { "id": "mappings", "value": [
+                { "options": { "pending": { "color": "yellow", "index": 0, "text": "待审批" } }, "type": "value" },
+                { "options": { "approved": { "color": "green", "index": 1, "text": "已通过" } }, "type": "value" },
+                { "options": { "rejected": { "color": "red", "index": 2, "text": "已拒绝" } }, "type": "value" }
+              ]}
+            ]
+          }
+        ]
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 42 },
+      "id": 17,
+      "options": {
+        "cellHeight": "sm",
+        "footer": { "countRows": false, "fields": "", "reducer": ["sum"], "show": false },
+        "showHeader": true
+      },
+      "targets": [
+        {
+          "columns": [],
+          "filters": [],
+          "format": "table",
+          "refId": "A",
+          "source": "url",
+          "type": "json",
+          "url": "${CMDB_API_URL}/gpu/recent-requests",
+          "url_options": { "method": "GET" },
+          "comment": "返回格式: [{\"request_id\": \"REQ001\", \"applicant\": \"张三\", \"department\": \"AI研发\", \"gpu_count\": 8, \"gpu_model\": \"A100-80G\", \"status\": \"pending\", \"created_at\": \"2024-01-15\"}]"
+        }
+      ],
+      "title": "最近资源申请",
+      "description": "最近的 GPU 资源申请记录",
+      "type": "table"
+    }
+  ],
+  "refresh": "5m",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": ["GPU", "资源管理", "CMDB"],
+  "templating": {
+    "list": [
+      {
+        "current": {},
+        "hide": 0,
+        "includeAll": true,
+        "label": "部门",
+        "multi": true,
+        "name": "department",
+        "options": [],
+        "query": "",
+        "queryValue": "",
+        "skipUrlSync": false,
+        "type": "custom",
+        "description": "筛选部门"
+      },
+      {
+        "current": {},
+        "hide": 0,
+        "includeAll": true,
+        "label": "GPU型号",
+        "multi": true,
+        "name": "gpu_model",
+        "options": [],
+        "query": "",
+        "queryValue": "",
+        "skipUrlSync": false,
+        "type": "custom",
+        "description": "筛选GPU型号"
+      },
+      {
+        "current": {},
+        "hide": 0,
+        "includeAll": true,
+        "label": "机房",
+        "multi": true,
+        "name": "datacenter",
+        "options": [],
+        "query": "",
+        "queryValue": "",
+        "skipUrlSync": false,
+        "type": "custom",
+        "description": "筛选机房"
+      },
+      {
+        "current": { "selected": false, "text": "http://your-cmdb-api.com/api", "value": "http://your-cmdb-api.com/api" },
+        "hide": 2,
+        "label": "CMDB API 地址",
+        "name": "CMDB_API_URL",
+        "options": [{ "selected": true, "text": "http://your-cmdb-api.com/api", "value": "http://your-cmdb-api.com/api" }],
+        "query": "http://your-cmdb-api.com/api",
+        "skipUrlSync": false,
+        "type": "constant",
+        "description": "CMDB API 基础地址"
+      }
+    ]
+  },
+  "time": { "from": "now-7d", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "GPU 资源管理看板",
+  "uid": "gpu-resource-dashboard",
+  "version": 1,
+  "weekStart": ""
+}

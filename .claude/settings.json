@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(/tmp/find_single_gpu_line.expect)",
+      "Bash(git add .)",
+      "Bash(git commit:*)",
+      "Bash(git remote add origin https://github.com/Fanfan326/feishu_event.git)",
+      "Bash(git branch -M main)",
+      "Bash(git push -u origin main)"
+    ]
+  }
+}

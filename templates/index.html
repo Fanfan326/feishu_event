@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}工单列表 - 工单管理系统{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <h2>工单列表</h2>
+    <a href="{{ url_for('create_ticket') }}" class="btn btn-primary">创建工单</a>
+</div>
+
+<div class="card">
+    <form method="GET" style="margin-bottom: 20px;">
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 200px;">
+                <input type="text" name="search" placeholder="搜索工单..." value="{{ request.args.get('search', '') }}" style="width: 100%;">
+            </div>
+            <div>
+                <select name="status" style="width: 150px;">
+                    <option value="">全部状态</option>
+                    <option value="待处理" {% if request.args.get('status') == '待处理' %}selected{% endif %}>待处理</option>
+                    <option value="处理中" {% if request.args.get('status') == '处理中' %}selected{% endif %}>处理中</option>
+                    <option value="已完成" {% if request.args.get('status') == '已完成' %}selected{% endif %}>已完成</option>
+                    <option value="已关闭" {% if request.args.get('status') == '已关闭' %}selected{% endif %}>已关闭</option>
+                </select>
+            </div>
+            <div>
+                <select name="priority" style="width: 150px;">
+                    <option value="">全部优先级</option>
+                    <option value="高" {% if request.args.get('priority') == '高' %}selected{% endif %}>高</option>
+                    <option value="中" {% if request.args.get('priority') == '中' %}selected{% endif %}>中</option>
+                    <option value="低" {% if request.args.get('priority') == '低' %}selected{% endif %}>低</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">筛选</button>
+            <a href="{{ url_for('index') }}" class="btn btn-secondary">重置</a>
+        </div>
+    </form>
+    
+    {% if tickets %}
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>标题</th>
+                <th>状态</th>
+                <th>优先级</th>
+                <th>创建人</th>
+                <th>负责人</th>
+                <th>创建时间</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ticket in tickets %}
+            <tr>
+                <td>#{{ ticket.id }}</td>
+                <td><a href="{{ url_for('ticket_detail', ticket_id=ticket.id) }}">{{ ticket.title }}</a></td>
+                <td><span class="status-badge status-{{ ticket.status }}">{{ ticket.status }}</span></td>
+                <td><span class="priority-{{ ticket.priority }}">{{ ticket.priority }}</span></td>
+                <td>{{ ticket.creator }}</td>
+                <td>{{ ticket.assignee }}</td>
+                <td>{{ ticket.created_at }}</td>
+                <td>
+                    <a href="{{ url_for('ticket_detail', ticket_id=ticket.id) }}" class="btn btn-primary" style="padding: 4px 8px; font-size: 12px;">查看</a>
+                    <a href="{{ url_for('edit_ticket', ticket_id=ticket.id) }}" class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;">编辑</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div style="text-align: center; padding: 40px; color: #8c8c8c;">
+        暂无工单，<a href="{{ url_for('create_ticket') }}">创建第一个工单</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
