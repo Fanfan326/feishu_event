@@ -1,0 +1,37 @@
+{
+  "gpu_thresholds": {
+    "4090": {
+      "min_free": 100,
+      "description": "RTX 4090"
+    },
+    "H100": {
+      "min_free": 20,
+      "description": "H100"
+    },
+    "H200": {
+      "min_free": 10,
+      "description": "H200"
+    },
+    "A100": {
+      "min_free": 30,
+      "description": "A100"
+    },
+    "3090": {
+      "min_free": 50,
+      "description": "RTX 3090"
+    },
+    "5090": {
+      "min_free": 50,
+      "description": "RTX 5090"
+    },
+    "L40S": {
+      "min_free": 20,
+      "description": "L40S"
+    }
+  },
+  "notification": {
+    "user_ids": ["请填写飞书用户ID"],
+    "check_time": "10:00",
+    "comment": "每天检查时间为上午10点"
+  }
+}
