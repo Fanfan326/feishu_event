@@ -1,24 +1,20 @@
 """
 GPU 库存查询模块
-从 MySQL 数据库查询 Grafana 显示的 GPU 库存数据
+通过 Grafana API 查询 GPU 库存数据
 """
 
-import pymysql
 import os
+import requests
 from typing import Optional, Dict, List, Tuple
 from dotenv import load_dotenv
 
 # 加载环境变量
 load_dotenv()
 
-# 数据库配置（从环境变量读取）
-DB_CONFIG = {
-    "host": os.getenv("DB_HOST", "localhost"),
-    "port": int(os.getenv("DB_PORT", "3306")),
-    "user": os.getenv("DB_USER", "root"),
-    "password": os.getenv("DB_PASSWORD", ""),
-    "database": os.getenv("DB_DATABASE", "nexus")
-}
+# Grafana API 配置
+GRAFANA_URL = os.getenv("GRAFANA_URL", "https://grafana.aicloud.paigod.work")
+GRAFANA_API_KEY = os.getenv("GRAFANA_API_KEY")
+GRAFANA_DATASOURCE_UID = os.getenv("GRAFANA_DATASOURCE_UID", "een5ao3qgwyrkc")
 
 # 海外机房关键词
 OVERSEAS_IDC_KEYWORDS = ["dallas", "canopy", "gcore"]
@@ -41,9 +37,68 @@ GPU_TYPE_MAP = {
 }
 
 
-def get_db_connection():
-    """获取数据库连接"""
-    return pymysql.connect(**DB_CONFIG)
+def query_grafana(sql: str) -> List[Dict]:
+    """
+    通过 Grafana API 执行 SQL 查询
+
+    Args:
+        sql: SQL 查询语句
+
+    Returns:
+        查询结果列表，每个元素是一个字典
+    """
+    if not GRAFANA_API_KEY:
+        raise ValueError("GRAFANA_API_KEY 未配置")
+
+    url = f"{GRAFANA_URL}/api/ds/query"
+    headers = {
+        "Authorization": f"Bearer {GRAFANA_API_KEY}",
+        "Content-Type": "application/json"
+    }
+
+    payload = {
+        "queries": [
+            {
+                "datasource": {"type": "mysql", "uid": GRAFANA_DATASOURCE_UID},
+                "rawSql": sql,
+                "format": "table",
+                "refId": "A"
+            }
+        ]
+    }
+
+    try:
+        response = requests.post(url, json=payload, headers=headers, timeout=30)
+        response.raise_for_status()
+        data = response.json()
+
+        # 解析 Grafana 返回的数据格式
+        if "results" in data and "A" in data["results"]:
+            frames = data["results"]["A"].get("frames", [])
+            if frames:
+                frame = frames[0]
+                schema = frame.get("schema", {}).get("fields", [])
+                values = frame.get("data", {}).get("values", [])
+
+                # 构建列名到索引的映射
+                columns = [field["name"] for field in schema]
+
+                # 转换为字典列表
+                rows = []
+                if values and len(values) > 0:
+                    num_rows = len(values[0]) if values[0] else 0
+                    for i in range(num_rows):
+                        row = {}
+                        for j, col_name in enumerate(columns):
+                            row[col_name] = values[j][i] if j < len(values) else None
+                        rows.append(row)
+
+                return rows
+
+        return []
+    except Exception as e:
+        print(f"Grafana API 查询失败: {e}")
+        return []
 
 
 def is_overseas_idc(idc: str) -> bool:
@@ -70,10 +125,7 @@ def get_all_gpu_inventory(region: str = None, high_freq: bool = None) -> List[Di
         region: "国内" 或 "海外"，None 表示全部
         high_freq: True 表示高主频，False 表示普通，None 表示全部
     """
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
-    cursor.execute('''
+    sql = '''
         SELECT
             gpu_product_name,
             idc,
@@ -81,22 +133,24 @@ def get_all_gpu_inventory(region: str = None, high_freq: bool = None) -> List[Di
             SUM(free_gpu_num) as free,
             SUM(used_gpu_num) as used,
             SUM(unavailable_gpu_num) as unavailable
-        FROM nexus_nodes_v2
-        WHERE deleted_time = 0
+        FROM nexus.nexus_nodes_v2
+        WHERE (deleted_time IS NULL OR deleted_time = 0)
           AND gpu_product_name != ''
         GROUP BY gpu_product_name, idc
-    ''')
+    '''
+
+    rows = query_grafana(sql)
 
     # 按 GPU 类型和高主频/普通分类汇总
     gpu_data = {}  # key: (gpu_name, is_high_freq), value: {total, free, used, unavailable}
 
-    for row in cursor.fetchall():
-        gpu_name = row[0]
-        idc = row[1] or ""
-        total = row[2] or 0
-        free = row[3] or 0
-        used = row[4] or 0
-        unavailable = row[5] or 0
+    for row in rows:
+        gpu_name = row.get("gpu_product_name", "")
+        idc = row.get("idc", "")
+        total = row.get("total", 0) or 0
+        free = row.get("free", 0) or 0
+        used = row.get("used", 0) or 0
+        unavailable = row.get("unavailable", 0) or 0
 
         # 区域过滤
         is_overseas = is_overseas_idc(idc)
@@ -121,8 +175,6 @@ def get_all_gpu_inventory(region: str = None, high_freq: bool = None) -> List[Di
         gpu_data[key]["free"] += free
         gpu_data[key]["used"] += used
         gpu_data[key]["unavailable"] += unavailable
-
-    conn.close()
 
     # 转换为列表格式
     result = []
@@ -154,12 +206,9 @@ def get_gpu_inventory_by_type(gpu_type: str, region: str = None, high_freq: bool
     gpu_type_upper = gpu_type.upper()
     db_gpu_name = GPU_TYPE_MAP.get(gpu_type_upper)
 
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
     if db_gpu_name:
         # 精确匹配
-        cursor.execute('''
+        sql = f'''
             SELECT
                 gpu_product_name,
                 idc,
@@ -167,14 +216,14 @@ def get_gpu_inventory_by_type(gpu_type: str, region: str = None, high_freq: bool
                 SUM(free_gpu_num) as free,
                 SUM(used_gpu_num) as used,
                 SUM(unavailable_gpu_num) as unavailable
-            FROM nexus_nodes_v2
-            WHERE deleted_time = 0
-              AND gpu_product_name = %s
+            FROM nexus.nexus_nodes_v2
+            WHERE (deleted_time IS NULL OR deleted_time = 0)
+              AND gpu_product_name = '{db_gpu_name}'
             GROUP BY gpu_product_name, idc
-        ''', (db_gpu_name,))
+        '''
     else:
         # 模糊匹配
-        cursor.execute('''
+        sql = f'''
             SELECT
                 gpu_product_name,
                 idc,
@@ -182,22 +231,24 @@ def get_gpu_inventory_by_type(gpu_type: str, region: str = None, high_freq: bool
                 SUM(free_gpu_num) as free,
                 SUM(used_gpu_num) as used,
                 SUM(unavailable_gpu_num) as unavailable
-            FROM nexus_nodes_v2
-            WHERE deleted_time = 0
-              AND gpu_product_name LIKE %s
+            FROM nexus.nexus_nodes_v2
+            WHERE (deleted_time IS NULL OR deleted_time = 0)
+              AND gpu_product_name LIKE '%{gpu_type}%'
             GROUP BY gpu_product_name, idc
-        ''', (f'%{gpu_type}%',))
+        '''
+
+    rows = query_grafana(sql)
 
     # 汇总数据
     result = {"total": 0, "free": 0, "used": 0, "unavailable": 0, "name": None}
 
-    for row in cursor.fetchall():
-        gpu_name = row[0]
-        idc = row[1] or ""
-        total = row[2] or 0
-        free = row[3] or 0
-        used = row[4] or 0
-        unavailable = row[5] or 0
+    for row in rows:
+        gpu_name = row.get("gpu_product_name", "")
+        idc = row.get("idc", "")
+        total = row.get("total", 0) or 0
+        free = row.get("free", 0) or 0
+        used = row.get("used", 0) or 0
+        unavailable = row.get("unavailable", 0) or 0
 
         # 区域过滤
         is_overseas = is_overseas_idc(idc)
@@ -219,8 +270,6 @@ def get_gpu_inventory_by_type(gpu_type: str, region: str = None, high_freq: bool
         result["used"] += used
         result["unavailable"] += unavailable
 
-    conn.close()
-
     if result["name"]:
         result["is_high_freq"] = high_freq if high_freq is not None else False
         return result
@@ -229,9 +278,6 @@ def get_gpu_inventory_by_type(gpu_type: str, region: str = None, high_freq: bool
 
 def get_gpu_inventory_by_region(gpu_type: str = None, region: str = None) -> List[Dict]:
     """按地区查询 GPU 库存"""
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
     sql = '''
         SELECT
             gpu_product_name,
@@ -239,29 +285,26 @@ def get_gpu_inventory_by_region(gpu_type: str = None, region: str = None) -> Lis
             SUM(total_gpu_num) as total,
             SUM(free_gpu_num) as free,
             SUM(used_gpu_num) as used
-        FROM nexus_nodes_v2
-        WHERE deleted_time = 0
+        FROM nexus.nexus_nodes_v2
+        WHERE (deleted_time IS NULL OR deleted_time = 0)
           AND gpu_product_name != ''
     '''
-    params = []
 
     if gpu_type:
         gpu_type_upper = gpu_type.upper()
         db_gpu_name = GPU_TYPE_MAP.get(gpu_type_upper)
         if db_gpu_name:
-            sql += ' AND gpu_product_name = %s'
-            params.append(db_gpu_name)
+            sql += f" AND gpu_product_name = '{db_gpu_name}'"
         else:
-            sql += ' AND gpu_product_name LIKE %s'
-            params.append(f'%{gpu_type}%')
+            sql += f" AND gpu_product_name LIKE '%{gpu_type}%'"
 
     sql += ' GROUP BY gpu_product_name, idc ORDER BY total DESC'
 
-    cursor.execute(sql, params)
+    rows = query_grafana(sql)
 
     result = []
-    for row in cursor.fetchall():
-        idc = row[1] or ""
+    for row in rows:
+        idc = row.get("idc", "")
 
         # 区域过滤
         is_overseas = is_overseas_idc(idc)
@@ -271,16 +314,15 @@ def get_gpu_inventory_by_region(gpu_type: str = None, region: str = None) -> Lis
             continue
 
         result.append({
-            "name": row[0],
+            "name": row.get("gpu_product_name", ""),
             "idc": idc,
             "is_overseas": is_overseas,
             "is_high_freq": is_high_freq_idc(idc),
-            "total": row[2],
-            "free": row[3],
-            "used": row[4]
+            "total": row.get("total", 0) or 0,
+            "free": row.get("free", 0) or 0,
+            "used": row.get("used", 0) or 0
         })
 
-    conn.close()
     return result
 
 
